@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>증권사 수수료 비교</title>
+<style>
+  :root {
+    --bg: #f7f7f8;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --text-dim: #6b6b6b;
+    --border: #e5e5e7;
+    --accent: #2f6fed;
+    --warn-bg: #fff8e6;
+    --warn-border: #f0d98c;
+    --error: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121214;
+      --card-bg: #1c1c1f;
+      --text: #f2f2f2;
+      --text-dim: #9a9a9a;
+      --border: #2e2e32;
+      --accent: #6f9bff;
+      --warn-bg: #2a2413;
+      --warn-border: #5a4b1e;
+      --error: #ff7a6b;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    margin: 0;
+    padding: 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  h1 {
+    font-size: 20px;
+    margin: 4px 0 4px;
+  }
+  .problem {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0 0 20px;
+    word-break: keep-all;
+  }
+  .meta {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .card .info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .card .name {
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--border);
+    color: var(--text-dim);
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  .badge.live {
+    background: #e4f3e6;
+    color: #1c7a34;
+  }
+  @media (prefers-color-scheme: dark) {
+    .badge.live {
+      background: #163d20;
+      color: #6fd88a;
+    }
+  }
+  .card .sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    overflow-wrap: break-word;
+  }
+  .card .fee {
+    text-align: right;
+    flex: 0 0 auto;
+    max-width: 42%;
+  }
+  .card .fee .won {
+    font-size: 17px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .card .fee .basdt {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .card.error {
+    border-color: var(--error);
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .card.error .fee {
+    color: var(--error);
+    font-size: 12px;
+    text-align: left;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    margin-top: 4px;
+  }
+  .section-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 24px 0 8px;
+    color: var(--text-dim);
+  }
+  .not-connected {
+    background: var(--warn-bg);
+    border: 1px dashed var(--warn-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    word-break: keep-all;
+  }
+  .skeleton {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    height: 56px;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  footer {
+    margin-top: 28px;
+    font-size: 11px;
+    color: var(--text-dim);
+    word-break: keep-all;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>증권사 수수료 비교</h1>
+    <p class="problem">
+      나(및 공유 대상)가 · 주기적으로 · 키움·한투·미래에셋·NH·삼성·KB의
+      국내주식 매수매도수수료와 환전수수료를 비교해서 본다
+    </p>
+    <div class="meta" id="meta">데이터 불러오는 중…</div>
+
+    <div class="section-label">국내주식 매매수수료 (실데이터)</div>
+    <div class="card-list" id="domestic-list">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+
+    <div class="section-label">환전수수료</div>
+    <div class="not-connected">
+      아직 연결 안 됨 — 공공데이터 API에 환전수수료 항목이 없어 수동 입력이 필요합니다.
+    </div>
+
+    <footer id="footer"></footer>
+  </div>
+
+  <script>
+    function formatWon(n) {
+      if (typeof n !== "number" || Number.isNaN(n)) return "-";
+      return n.toLocaleString("ko-KR") + "원";
+    }
+    function formatDate(basDt) {
+      if (!basDt || basDt.length !== 8) return basDt || "-";
+      return `${basDt.slice(0, 4)}.${basDt.slice(4, 6)}.${basDt.slice(6, 8)}`;
+    }
+
+    async function load() {
+      const listEl = document.getElementById("domestic-list");
+      const metaEl = document.getElementById("meta");
+      const footerEl = document.getElementById("footer");
+
+      try {
+        const res = await fetch("/api/fees");
+        const data = await res.json();
+
+        if (data.error) {
+          metaEl.textContent = "데이터를 불러오지 못했습니다: " + data.error;
+          listEl.innerHTML = "";
+          return;
+        }
+
+        metaEl.textContent =
+          `${data.trAmtLabel} · ${data.channelLabel} · 조회 시각 ${new Date(data.fetchedAt).toLocaleString("ko-KR")}`;
+        footerEl.textContent = `출처: ${data.source}. ${data.scope}`;
+
+        listEl.innerHTML = "";
+        for (const c of data.companies) {
+          const card = document.createElement("div");
+
+          if (c.status === "live" || c.status === "verified_snapshot") {
+            card.className = "card";
+            const badge =
+              c.status === "verified_snapshot"
+                ? '<span class="badge">검증된 값(스냅샷)</span>'
+                : '<span class="badge live">실시간</span>';
+            card.innerHTML = `
+              <div class="info">
+                <div class="name">${c.name} ${badge}</div>
+                <div class="sub">${c.channel || ""}</div>
+              </div>
+              <div class="fee">
+                <div class="won">${formatWon(c.feeWon)}</div>
+                <div class="basdt">기준 ${formatDate(c.basDt)}</div>
+              </div>
+            `;
+          } else if (c.status === "no_data") {
+            card.className = "card error";
+            card.innerHTML = `
+              <div class="info">
+                <div class="name">${c.name}</div>
+                <div class="sub">값 없음</div>
+              </div>
+              <div class="fee">${c.note || "데이터를 확인하지 못했습니다."}</div>
+            `;
+          } else {
+            card.className = "card error";
+            card.innerHTML = `
+              <div class="info">
+                <div class="name">${c.name}</div>
+                <div class="sub">불러오기 실패</div>
+              </div>
+              <div class="fee">${c.error || "알 수 없는 오류"}</div>
+            `;
+          }
+          listEl.appendChild(card);
+        }
+      } catch (err) {
+        metaEl.textContent = "서버에 연결하지 못했습니다: " + err.message;
+        listEl.innerHTML = "";
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>
